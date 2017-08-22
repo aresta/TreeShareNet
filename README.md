@@ -41,4 +41,13 @@ Next steps:
 * Encryption.
 * ...
 
+## Requeriments:
+Python 3
+## Usage
+Move to the project folder and execute:  **python treesharenet.py**
+
+In the prompt you can try some search over the randomly created files.  Try with combinations of the words: terra bosc pins    For example:  "**s terra**"  or "**s terra pins**"
+If you get several files in a row is because the 'content' field is the same, so is the same file altough the title can be different.
+
+
 

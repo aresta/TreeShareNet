@@ -55,10 +55,7 @@ class NetworkTree:
 
     @staticmethod
     def printSubTree( node, level ):
-        #print( " "*level + "-" + str( node))
-        if not node.getDescendants(): print(" "*level, node.address,"[]")
-        for n in node.getDescendants():
-            print("*"*level, node.address, n)
+        print( " "*level + str( node))
         for n in node.getDescendants():
             NetworkTree.printSubTree( NetworkTree.__getNode(n), level+1) 
 
@@ -73,9 +70,8 @@ class NetworkTree:
             hashKey = NetworkTree.hashString(content)
             if hashKey in result: result[hashKey].append(newFile) 
             else: result[hashKey] = [newFile]
-            if hashKey in NetworkTree.hashes: NetworkTree.hashes[hashKey].append(title)
-            else: NetworkTree.hashes[hashKey] = [title]
-        
+            if hashKey in NetworkTree.hashes: NetworkTree.hashes[hashKey].append(newFile)
+            else: NetworkTree.hashes[hashKey] = [newFile]
         return result
 
 class TSNConnection:

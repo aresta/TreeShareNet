@@ -97,7 +97,6 @@ class Node:
         result = {}
         if searchTerm in self.__files:
             result[searchTerm] = self.__files[searchTerm]
-            print( "result", result)
             
         for descendant in self.__descendantsAddr: 
             if descendant == requesterAddr: continue
@@ -122,13 +121,15 @@ class Node:
         return self.searchByTitle( self.address, searchTerm)
 
 
-
+TotalNodes = 1001
+print("Creating test network with %r nodes." % TotalNodes)
 Node() # this initializes our internet with a 1st node
-for i in range(1, 1000):
+for i in range(1, TotalNodes):
     entryPoint = NetworkTree.getRandomAddress()
     me = Node()
     conn = NetworkTree.connectTo( me.address, entryPoint)
     conn.insertNewNode( me)
+print("Network created.")
 
 # NetworkTree.printTree()
 
@@ -142,9 +143,43 @@ entryPoint = NetworkTree.getRandomAddress()
 me = Node()
 conn = NetworkTree.connectTo( me.address, entryPoint)
 conn.insertNewNode( me)
-res = me.userSearch( 'terra t')
-for r in res: print(res[r])
-hashToFind = list(res.keys()).pop()
-print("hashToFind", hashToFind, res[hashToFind])
-me.searchByHash( me.address, hashToFind)
+print("Connected!")
+print("""
+
+Commands: 
+ s [string]    search files by filename
+ si [index]    search filea by index of previous search
+ nodes         shows tree with nodes and descendants
+ f             shows all random created files
+ q             bye
+
+  Hint, try:  s terra
+
+""")
+
+results = {}
+bye = False
+while(not bye):
+    s = input("> ")
+    comm = s.split()
+    if len(comm) == 0: continue
+    if comm[0]=='nodes':
+        NetworkTree.printTree()
+    elif comm[0]=='s':
+        res = me.userSearch( s[ len(comm[0])+1:] )
+        i=1
+        results.clear()
+        for r in res: 
+            print(i, res[r])
+            results[i] = r
+            i+=1
+    elif comm[0]=='si':
+        res = me.searchByHash( me.address, results[ int(comm[1]) ] )
+        print( res)
+    elif comm[0]=='f':
+        for h in NetworkTree.hashes: 
+            print( NetworkTree.hashes[h])
+    elif comm[0]=='q':
+        print('Bye!')
+        bye = True
     
