@@ -18,7 +18,7 @@ class Node:
 
     def __str__(self): return str( str(self.address) + " => " + str(self.__descendantsAddr))
 
-    def getDescendants(self): return self.__descendantsAddr  # only for testing.  TODO: disable
+    def getDescendants(self): return self.__descendantsAddr  # only for testing.  TODO: disable 
     
     def insertNode( self, requesterAddr, node):
         """ Another node ask us to accomodate this node in a new place.
