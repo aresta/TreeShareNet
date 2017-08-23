@@ -26,17 +26,19 @@ class NetworkTree:
 
     @staticmethod
     def generateNewAddr():
-        return (max( NetworkTree.__nodes.keys() ) + 1) if NetworkTree.__nodes else 0
+        return (max( NetworkTree.__nodes.keys() ) + 1) if NetworkTree.__nodes else 1
 
     @staticmethod
     def __getRoot(): # only for testing. TODO: disable
         for n in NetworkTree.__nodes:
-            if not NetworkTree.__getNode(n).parentAddr:
+            if NetworkTree.__getNode(n).parentAddr is None:
                 return NetworkTree.__getNode(n)
         return None
 
     @staticmethod
-    def __getNode( addr): return NetworkTree.__nodes[addr] # only for testing. TODO: disable
+    def __getNode( addr): 
+        assert addr in NetworkTree.__nodes
+        return NetworkTree.__nodes[addr] # only for testing. TODO: disable
 
     @staticmethod
     def getRandomAddress(): # only for testing. TODO: disable
@@ -54,8 +56,12 @@ class NetworkTree:
         NetworkTree.printSubTree( NetworkTree.__getRoot(), 0)
 
     @staticmethod
+    def treeDeep():
+        return NetworkTree.__getRoot().getDeep()
+
+    @staticmethod
     def printSubTree( node, level ):
-        print( " "*level + str( node))
+        print( "  "*level + str( node))
         for n in node.getDescendants():
             NetworkTree.printSubTree( NetworkTree.__getNode(n), level+1) 
 
@@ -82,7 +88,10 @@ class TSNConnection:
         self.fromAddr = fromAddr
         self.toNode = toNode
 
-    def insertNode( self, newNode ):
+    def insertNode( self, node ):
+        return self.toNode.insertNode( self.fromAddr, node)
+
+    def insertNewNode( self, newNode): # I know, is doing the same, so far
         return self.toNode.insertNode( self.fromAddr, newNode)
 
     def addDescendant( self, newNode ):
@@ -93,9 +102,10 @@ class TSNConnection:
     
     def sendSearchByHash( self, searchTerm):
         return self.toNode.searchByHash( self.fromAddr, searchTerm)
+
+    def getDeep( self):
+        return self.toNode.getDeep()
     
-    def insertNewNode( self, node):
-        return self.toNode.insertNode( self.fromAddr, node)
 
     
 
