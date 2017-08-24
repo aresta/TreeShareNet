@@ -1,5 +1,5 @@
 # TreeShareNet
-## At the moment this is a proof of concept of a decentralized and anonymous P2P sharing network.
+## At the moment this is a proof of concept of a decentralized and anonymous P2P sharing network. 
 
 Main goals are:
 * No centralized servers. Any node acts as a server, relay, search provider, etc.
