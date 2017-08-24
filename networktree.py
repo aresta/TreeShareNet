@@ -63,11 +63,14 @@ class NetworkTree:
     def printSubTree( node, level ):
         descendants = node.getDescendants()
         if not descendants: return 
-        print( "  "*level + str( node.address) + "\\")
-        for n in descendants:
-            print( "  "*(level+1) + str(NetworkTree.__getNode(n)))
-        for n in descendants:
-            NetworkTree.printSubTree( NetworkTree.__getNode(n), level+1) 
+        descNodes = [NetworkTree.__getNode(n) for n in descendants]
+        desc2 = [n.getDescendants() for n in descNodes]
+        if( not any( desc2)): return
+        print( "\t"*level + "     " + str( node.address) + "\\")
+        for d in descNodes:
+            print( "\t"*(level+1) + str(d))
+        for d in descNodes:
+            NetworkTree.printSubTree( d, level+1) 
 
     @staticmethod
     def getSomeRandomFiles():
