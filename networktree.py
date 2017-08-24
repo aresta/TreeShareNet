@@ -37,7 +37,7 @@ class NetworkTree:
 
     @staticmethod
     def __getNode( addr): 
-        assert addr in NetworkTree.__nodes
+        assert addr in NetworkTree.__nodes, "getnode: address not in network: %r" % addr
         return NetworkTree.__nodes[addr] # only for testing. TODO: disable
 
     @staticmethod
@@ -52,17 +52,21 @@ class NetworkTree:
     #### For testing #####
 
     @staticmethod
-    def printTree():
-        NetworkTree.printSubTree( NetworkTree.__getRoot(), 0)
-
-    @staticmethod
     def treeDeep():
         return NetworkTree.__getRoot().getDeep()
 
     @staticmethod
+    def printTree():
+        NetworkTree.printSubTree( NetworkTree.__getRoot(), 0)
+
+    @staticmethod
     def printSubTree( node, level ):
-        print( "  "*level + str( node))
-        for n in node.getDescendants():
+        descendants = node.getDescendants()
+        if not descendants: return 
+        print( "  "*level + str( node.address) + "\\")
+        for n in descendants:
+            print( "  "*(level+1) + str(NetworkTree.__getNode(n)))
+        for n in descendants:
             NetworkTree.printSubTree( NetworkTree.__getNode(n), level+1) 
 
     @staticmethod
@@ -91,8 +95,12 @@ class TSNConnection:
     def insertNode( self, node ):
         return self.toNode.insertNode( self.fromAddr, node)
 
-    def insertNewNode( self, newNode): # I know, is doing the same, so far
-        return self.toNode.insertNode( self.fromAddr, newNode)
+    def insertNodeDeepIncrease( self, node ):
+        return self.toNode.insertNodeDeepIncrease( node)
+
+    def insertNewNode( self, newNode): 
+        if self.toNode.insertNode( self.fromAddr, newNode): return True
+        return self.toNode.insertNodeDeepIncrease( newNode)
 
     def addDescendant( self, newNode ):
         return self.toNode.addDescendant( newNode)

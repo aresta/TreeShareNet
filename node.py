@@ -4,7 +4,7 @@ import random, math
 class Node:
     """A network node
     """
-    MAX_DESCENDANTS = 10
+    MAX_DESCENDANTS = 4
     networkAccess = NetworkTree  # Someday we will put here internet.
 
     def __init__(self):
@@ -22,24 +22,36 @@ class Node:
     
     def insertNode( self, requesterAddr, node):
         """ Another node ask us to accomodate this node in a new place.
-            Note that we don't now wether it is new or have descendants.
+            Note that we don't now wether it is new, leaf or have descendants.
         """
         assert node.address != self.parentAddr
         assert node.address != self.address
         assert requesterAddr != self.address
         assert node.address not in self.__descendantsAddr
+        #print( self.address, "insertNode: ", node.address)
+        if self.__descendantsAddr and self.addDescendant( node): return True    # Without increasing deep, try to add as direct descendant
+
+        for descendant in self.__descendantsAddr:
+            if descendant == requesterAddr: continue
+            conn = self.networkAccess.connectTo( self.address, descendant)
+            if conn.insertNode( node): return True
 
         if self.parentAddr is not None and requesterAddr != self.parentAddr:    # Ask the parent to insert it somewhere up in the tree
             conn = self.networkAccess.connectTo( self.address, self.parentAddr)
             if conn.insertNode( node): return True
+            if conn.insertNodeDeepIncrease( node): return True
 
-        if self.addDescendant( node): return True                   # Try to add the node as my direct descendant 
+        # print("ERROR: Node couldn't be inserted.", self.address, node.address)
+        return False
 
-        lessDeepDescendant = self.getLessDeepDescendant()           # Ask the descendant with the smaller subtree
+    def insertNodeDeepIncrease( self, node):
+        lessDeepDescendant = self.getLessDeepDescendant()   # Ask the descendant with the smaller subtree
+        if lessDeepDescendant is None: 
+            #print(" +DEEP", self.address, node.address)
+            #NetworkTree.printTree()
+            return self.addDescendant( node)    # 1st descendat. Here we increase the deep of this branch
         conn = self.networkAccess.connectTo( self.address, lessDeepDescendant)
-        if conn.insertNode( node): return True
-
-        print("ERROR: Node couldn't be inserted; ", self.address, node.address, requesterAddr)
+        if conn.insertNodeDeepIncrease( node): return True
 
     def addDescendant( self, node):
         """ Just try to add as a direct descendant, not recursively up or down

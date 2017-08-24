@@ -1,7 +1,7 @@
 from node import Node
 from networktree import *
 
-TotalNodes = 1001
+TotalNodes = 301
 print("Creating test network with %r nodes." % TotalNodes)
 Node() # this initializes our internet with a 1st node
 
