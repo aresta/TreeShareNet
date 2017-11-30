@@ -19,6 +19,9 @@ class Node:
     def __str__(self): return str( str(self.address) + " => " + str(self.__descendantsAddr))
 
     def getDescendants(self): return self.__descendantsAddr  # only for testing.  TODO: disable 
+
+    def __connectTo( self, toAddr):
+        return self.networkAccess.connectTo( self.address, toAddr)
     
     def insertNode( self, requesterAddr, node):
         """ Another node ask us to accomodate this node in a new place.
@@ -33,11 +36,11 @@ class Node:
 
         for descendant in self.__descendantsAddr:
             if descendant == requesterAddr: continue
-            conn = self.networkAccess.connectTo( self.address, descendant)
+            conn = self.__connectTo( descendant)
             if conn.insertNode( node): return True
 
         if self.parentAddr is not None and requesterAddr != self.parentAddr:    # Ask the parent to insert it somewhere up in the tree
-            conn = self.networkAccess.connectTo( self.address, self.parentAddr)
+            conn = self.__connectTo( self.parentAddr)
             if conn.insertNode( node): return True
             if conn.insertNodeDeepIncrease( node): return True
 
@@ -50,7 +53,7 @@ class Node:
             #print(" +DEEP", self.address, node.address)
             #NetworkTree.printTree()
             return self.addDescendant( node)    # 1st descendat. Here we increase the deep of this branch
-        conn = self.networkAccess.connectTo( self.address, lessDeepDescendant)
+        conn = self.__connectTo( lessDeepDescendant)
         if conn.insertNodeDeepIncrease( node): return True
 
     def addDescendant( self, node):
@@ -66,7 +69,7 @@ class Node:
         deeps = []
         if not self.__descendantsAddr: return 1
         for descendant in self.__descendantsAddr:
-            conn = self.networkAccess.connectTo( self.address, descendant)
+            conn = self.__connectTo( descendant)
             deeps.append( conn.getDeep())
         return (max( deeps ) + 1)
 
@@ -74,7 +77,7 @@ class Node:
         minDesc = math.inf # infinite
         minAddr = None
         for descendant in self.__descendantsAddr:
-            conn = self.networkAccess.connectTo( self.address, descendant)
+            conn = self.__connectTo( descendant)
             d = conn.getDeep()
             if d < minDesc:
                 minDesc = d
@@ -96,15 +99,16 @@ class Node:
                     break
         for descendant in self.__descendantsAddr: 
             if descendant == requesterAddr: continue
-            conn = self.networkAccess.connectTo( self.address, descendant)
+            conn = self.__connectTo( descendant)
             for k,v in conn.sendSearchByTitle( searchTerm).items():
                 if k in result: 
                     result[k].extend(v)
                 else: result[k] = v
                 assert v, "result Value empty: %r" % result[k]
+            # TODO if result has already a lot of results, stop searching and return
 
         if self.parentAddr is not None and self.parentAddr != requesterAddr:
-            conn = self.networkAccess.connectTo( self.address, self.parentAddr)
+            conn = self.__connectTo( self.parentAddr)
             for k,v in conn.sendSearchByTitle( searchTerm).items():
                 if k in result: 
                     result[k].extend(v)
@@ -121,15 +125,16 @@ class Node:
             
         for descendant in self.__descendantsAddr: 
             if descendant == requesterAddr: continue
-            conn = self.networkAccess.connectTo( self.address, descendant)
+            conn = self.__connectTo( descendant)
             for k,v in conn.sendSearchByHash( searchTerm).items():
                 if k in result: 
                     result[k].extend(v)
                 else: result[k] = v
                 assert v, "result Value empty: %r" % result[k]
+            # TODO if result has already a lot of results, stop searching and return
 
         if self.parentAddr is not None and self.parentAddr != requesterAddr:
-            conn = self.networkAccess.connectTo( self.address, self.parentAddr)
+            conn = self.__connectTo( self.parentAddr)
             for k,v in conn.sendSearchByHash( searchTerm).items():
                 if k in result: 
                     result[k].extend(v)

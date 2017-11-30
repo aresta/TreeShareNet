@@ -1,4 +1,4 @@
-import random
+import random, math
 import hashlib
 
 class CONSTS:
@@ -78,8 +78,8 @@ class NetworkTree:
         for i in range(3, random.randint(0,10)):
             title = " ".join( random.sample( CONSTS.TESTWORDS, 4))
             content = " ".join( random.sample( CONSTS.TESTWORDS, 2))
-            size = random.randint(100,10000)
-            newFile = {'title': title, 'content': content, 'size': size, 'chunks':size/CONSTS.CHUNK_SIZE}
+            size = len(content) * 10000
+            newFile = {'title': title, 'content': content, 'size': size, 'chunks': math.ceil( size/CONSTS.CHUNK_SIZE)}
             hashKey = NetworkTree.hashString(content)
             if hashKey in result: result[hashKey].append(newFile) 
             else: result[hashKey] = [newFile]
