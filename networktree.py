@@ -1,15 +1,10 @@
 import random, math
 import hashlib
 
-class CONSTS:
-    TESTWORDS = "En ma terra del Vallès tres turons fan una serra quatre pins un bosc espès cinc quarteres massa terra Com el Vallès no hi ha res".split()
-    CHUNK_SIZE = 50
-
 class NetworkTree:
     """ Our home-made internet
     """
     __nodes = {}
-    hashes = {}
     
     def __str__(self):
         return str(NetworkTree.__nodes)
@@ -17,7 +12,7 @@ class NetworkTree:
     @staticmethod
     def connectTo( fromAddr, toAddr):
         toNode = NetworkTree.__getNode(toAddr)
-        return TSNConnection( fromAddr, toNode)
+        return Connection( fromAddr, toNode)
 
     @staticmethod
     def appendNodeToNewkork( newNode ): 
@@ -40,16 +35,11 @@ class NetworkTree:
         assert addr in NetworkTree.__nodes, "getnode: address not in network: %r" % addr
         return NetworkTree.__nodes[addr] # only for testing. TODO: disable
 
-    @staticmethod
-    def getRandomAddress(): # only for testing. TODO: disable
-        return random.choice( list( NetworkTree.__nodes.keys()))
 
-    @staticmethod
-    def hashString( s ):
-        hash_object = hashlib.sha256( s.encode('utf-8'))
-        return hash_object.hexdigest()
 
-    #### For testing #####
+
+
+    #################### For testing #####################
 
     @staticmethod
     def treeDeep():
@@ -72,25 +62,24 @@ class NetworkTree:
         for d in descNodes:
             NetworkTree.printSubTree( d, level+1) 
 
-    @staticmethod
-    def getSomeRandomFiles():
-        result = {}
-        for i in range(3, random.randint(0,10)):
-            title = " ".join( random.sample( CONSTS.TESTWORDS, 4))
-            content = " ".join( random.sample( CONSTS.TESTWORDS, 2))
-            size = len(content) * 10000
-            newFile = {'title': title, 'content': content, 'size': size, 'chunks': math.ceil( size/CONSTS.CHUNK_SIZE)}
-            hashKey = NetworkTree.hashString(content)
-            if hashKey in result: result[hashKey].append(newFile) 
-            else: result[hashKey] = [newFile]
-            if hashKey in NetworkTree.hashes: NetworkTree.hashes[hashKey].append(newFile)
-            else: NetworkTree.hashes[hashKey] = [newFile]
-        return result
 
-class TSNConnection:
-    """ Nodes comunication inteface
+
+
+
+############################################################################
+############################ Environment Classes ############################
+
+class ConnectionDriver:
+    """ Inteface to access the other nodes
     """
+    fromAddr = None
+    def connectTo( self, toAddr):
+        return NetworkTree.connectTo( self.fromAddr, toAddr)
 
+
+class Connection:
+    """ A connection between two nodes
+    """
     def __init__( self, fromAddr, toNode):
         self.fromAddr = fromAddr
         self.toNode = toNode
@@ -118,7 +107,73 @@ class TSNConnection:
         return self.toNode.getDeep()
     
 
+class StorageDriver:
+
+    worldFiles = None
+
+    def __init__( self):
+        if StorageDriver.worldFiles is not None: return
+        StorageDriver.worldFiles = {}
+        for i in range(1, 100):
+            title = " ".join( random.sample( CONSTS.TESTWORDS, 5))
+            content = " ".join( random.sample( CONSTS.TESTWORDS, 25))
+            size = len(content) * 10000
+            newFile = {'title': title, 'content': content, 'size': size, 'chunks': math.ceil( size/CONSTS.CHUNK_SIZE)}
+            hashKey = StorageDriver.hashString(content)
+            StorageDriver.worldFiles[hashKey] = newFile
     
+    @staticmethod
+    def hashString( s ):
+        hash_object = hashlib.sha256( s.encode('utf-8'))
+        return hash_object.hexdigest()
 
-
+    @staticmethod
+    def chooseSomeFiles():
+        hashes = random.sample( list( StorageDriver.worldFiles), 5)
+        files = {}
+        for h in hashes:
+            files[h] = StorageDriver.worldFiles[h]
+        return files
+        
+    
+class CONSTS:
+    CHUNK_SIZE = 50
+    TESTWORDS = """
+Una nit de lluna plena
+tramuntarem la carena
+lentament, sense dir re.
+Si la lluna feia el ple
+tambe el feu la nostra pena.
+L'estimada m'acompanya
+de pell bruna i aire greu
+(com una marededeu
+que han trobat a la muntanya).
+Perque ens perdoni la guerra,
+que l'ensagna, que l'esguerra,
+abans de passar la ratlla,
+m'ajec i beso la terra
+i l'acarono amb l'espatlla.
+A Catalunya deixi
+el dia de ma partida
+mitja vida condormida;
+l'altra meitat vingue amb mi
+per no deixar-me sens vida.
+Avui en terres de França
+i dema mes lluny potser,
+no em morire d'enyorança
+ans d'enyorança viure.
+En ma terra del valles
+tres turons fan una serra,
+quatre pins un bosc espes,
+cinc quarteres massa terra.
+Com el valles no hi ha res.
+Que els pins cenyeixin la cala,
+l'ermita dalt del pujol;
+i a la platja un tenderol
+que bategui com una ala.
+Una esperança desfeta,
+una recança infinita.
+I una patria tan petita
+que la somio completa.
+""".split()
 

@@ -3,20 +3,21 @@ from networktree import *
 
 TotalNodes = 801
 print("Creating test network with %r nodes." % TotalNodes)
-Node() # this initializes our internet with a 1st node
 
+newNode = Node( ConnectionDriver(), StorageDriver())
+newNode.setFiles( StorageDriver.chooseSomeFiles())
+nodes = [ newNode ]
+
+# create a bunch of nodes and join to the TSN network
 for i in range(1, TotalNodes):
-    entryPoint = NetworkTree.getRandomAddress()
-    me = Node()
-    assert entryPoint != me.address
-    conn = NetworkTree.connectTo( me.address, entryPoint)
-    conn.insertNewNode( me)
+    memberAddress = random.choice( nodes).address
+    newNode = Node( ConnectionDriver(), StorageDriver())
+    newNode.setFiles( StorageDriver.chooseSomeFiles())
+    assert memberAddress != newNode.address
+    newNode.requestJoinTSN( memberAddress)
 print("Network created.")
 
-entryPoint = NetworkTree.getRandomAddress()
-me = Node()
-conn = NetworkTree.connectTo( me.address, entryPoint)
-conn.insertNewNode( me)
+me = random.choice( nodes)
 print("Connected!")
 print("""
 
@@ -46,7 +47,7 @@ while(not bye):
         i=1
         results.clear()
         for r in res: 
-            print(i, res[r])
+            print(i, res[r][0]['title'], len(res[r]))
             results[i] = r
             i+=1
 
@@ -55,8 +56,9 @@ while(not bye):
         print( res)
 
     elif comm[0]=='f':
-        for h in NetworkTree.hashes: 
-            print( NetworkTree.hashes[h])
+        # print(StorageDriver.worldFiles)
+        for h,f in StorageDriver.worldFiles.items():
+            print( h, f)
     
     elif comm[0]=='deep':
         print( NetworkTree.treeDeep())
